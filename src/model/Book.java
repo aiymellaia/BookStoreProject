@@ -10,8 +10,7 @@ public abstract class Book implements Serializable {
     private String type;
     private String coverUrl;
 
-
-    public Book(String title, String author, String region, double price, String type,  String coverUrl) {
+    public Book(String title, String author, String region, double price, String type, String coverUrl) {
         this.title = title;
         this.author = author;
         this.region = region;

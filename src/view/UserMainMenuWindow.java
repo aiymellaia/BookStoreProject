@@ -1,11 +1,12 @@
-package ui;
+package view;
 
-import client.ClientNetwork;
+import network.ClientNetwork;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 
 public class UserMainMenuWindow {
 
@@ -34,7 +35,7 @@ public class UserMainMenuWindow {
         });
 
         myPurchasesButton.setOnAction(e -> {
-            MyPurchasesWindow purchasesWindow = new MyPurchasesWindow(stage, username, clientNetwork);
+            PurchasedBooksWindow purchasesWindow = new PurchasedBooksWindow(stage, username, clientNetwork);
             purchasesWindow.show();
         });
 

@@ -1,7 +1,6 @@
 package model;
 
 public class EBook extends Book implements Purchasable {
-
     private String downloadLink;
 
     public EBook(String title, String author, String region, double price, String downloadLink, String coverUrl) {
@@ -15,7 +14,7 @@ public class EBook extends Book implements Purchasable {
 
     @Override
     public String getDetails() {
-        return "E-Book: " + getTitle() + " by " + getAuthor() + " [Download: " + downloadLink + "]";
+        return "Электронная книга: " + getTitle() + " — " + getAuthor() + " [Скачать: " + downloadLink + "]";
     }
 
     @Override

@@ -1,11 +1,10 @@
 package model;
 
 public class PrintedBook extends Book implements Purchasable {
-
     private int numberOfPages;
 
     public PrintedBook(String title, String author, String region, double price, int numberOfPages, String coverUrl) {
-        super(title, author, region, price, "Printed", coverUrl);
+        super(title, author, region, price, "PrintedBook", coverUrl);
         this.numberOfPages = numberOfPages;
     }
 
@@ -15,7 +14,7 @@ public class PrintedBook extends Book implements Purchasable {
 
     @Override
     public String getDetails() {
-        return "Printed Book: " + getTitle() + " by " + getAuthor() + " (" + numberOfPages + " pages)";
+        return "Печатная книга: " + getTitle() + " — " + getAuthor() + " (" + numberOfPages + " стр.)";
     }
 
     @Override

@@ -1,15 +1,18 @@
-package ui;
+package view;
 
-import client.ClientNetwork;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import model.Book;
+import network.ClientNetwork;
 
 import java.util.List;
 
@@ -31,7 +34,6 @@ public class AvailableBooksWindow {
         ListView<Book> booksListView = new ListView<>();
         ObservableList<Book> items = FXCollections.observableArrayList();
 
-        // Получение всех книг выбранного региона от сервера
         List<Book> books = clientNetwork.getBooksByRegion(region);
         items.addAll(books);
         booksListView.setItems(items);
@@ -40,31 +42,24 @@ public class AvailableBooksWindow {
             @Override
             protected void updateItem(Book book, boolean empty) {
                 super.updateItem(book, empty);
-                if (empty || book == null) {
-                    setText(null);
-                } else {
-                    setText(book.getDetails() + " — " + book.getPrice() + " ₸");
-                }
+                setText((empty || book == null) ? null : book.getDetails() + " — " + book.getPrice() + " ₸");
             }
         });
 
         Button buyButton = new Button("🛒 Купить");
-        buyButton.setDisable(true); // По умолчанию кнопка выключена
+        buyButton.setDisable(true);
 
-        // Включаем кнопку только если выбрали книгу
-        booksListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            buyButton.setDisable(newSelection == null);
+        booksListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            buyButton.setDisable(newSel == null);
         });
 
         buyButton.setOnAction(e -> {
             Book selectedBook = booksListView.getSelectionModel().getSelectedItem();
             if (selectedBook != null) {
                 boolean success = clientNetwork.purchaseBook(username, selectedBook);
-                if (success) {
-                    showAlert(Alert.AlertType.INFORMATION, "Успех", "Книга успешно куплена!");
-                } else {
-                    showAlert(Alert.AlertType.ERROR, "Ошибка", "Не удалось купить книгу.");
-                }
+                showAlert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+                        success ? "Успех" : "Ошибка",
+                        success ? "Книга успешно куплена!" : "Не удалось купить книгу.");
             }
         });
 

@@ -1,18 +1,16 @@
 package network;
-
 import model.Book;
 import service.DatabaseManager;
-
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.io.*;
-import java.net.*;
 import java.util.List;
-
-import static java.io.FileDescriptor.in;
-import static java.io.FileDescriptor.out;
+import model.User;
 
 public class Server {
 
-    private static final int PORT = 12345; // Порт для сокет-соединения
+    private static final int PORT = 12345;
     private ServerSocket serverSocket;
     private DatabaseManager databaseManager;
 
@@ -20,23 +18,20 @@ public class Server {
         try {
             this.serverSocket = new ServerSocket(PORT);
             this.databaseManager = new DatabaseManager();
-            System.out.println("Сервер запущен на порту " + PORT);
+            System.out.println("✅ Сервер запущен на порту " + PORT);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Ошибка при запуске сервера: " + e.getMessage());
         }
     }
 
     public void start() {
         while (true) {
             try {
-                // Ожидаем подключения клиента
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Подключен новый клиент: " + clientSocket.getInetAddress());
-
-                // Создаем новый поток для обслуживания клиента
+                System.out.println("🔌 Клиент подключён: " + clientSocket.getInetAddress());
                 new ClientHandler(clientSocket, databaseManager).start();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Ошибка при подключении клиента: " + e.getMessage());
             }
         }
     }
@@ -48,63 +43,87 @@ public class Server {
 }
 
 class ClientHandler extends Thread {
-    private Socket socket;
-    private DatabaseManager databaseManager;
-    private boolean authenticated = false;
 
+    private final Socket socket;
+    private final DatabaseManager db;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
 
-    public ClientHandler(Socket socket, DatabaseManager databaseManager) {
+    public ClientHandler(Socket socket, DatabaseManager db) {
         this.socket = socket;
-        this.databaseManager = databaseManager;
+        this.db = db;
+        try {
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void run() {
-        try (
-                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter output = new PrintWriter(socket.getOutputStream(), true)
-        ) {
-            String message;
-            if (!authenticated) {
-                if (message.startsWith("LOGIN")) {
-                    String[] parts = message.split(" ");
-                    String username = parts[1];
-                    String password = parts[2];
-                    if (userService.authenticate(username, password)) {
-                        output.println("LOGIN_SUCCESS");
-                        authenticated = true;
-                    } else {
-                        output.println("LOGIN_FAIL");
+        try {
+            while (true) {
+                Object commandObj = in.readObject();
+                if (commandObj == null) break;
+
+                String command = commandObj.toString();
+                switch (command) {
+                    case "LOGIN" -> handleLogin();
+                    case "REGISTER" -> handleRegister();
+                    case "GET_BOOKS" -> handleGetBooks();
+                    case "GET_BOOKS_BY_REGION" -> handleGetBooksByRegion();
+                    case "GET_PURCHASED_BOOKS" -> handleGetPurchasedBooks();
+                    case "PURCHASE_BOOK" -> handlePurchaseBook();
+                    case "EXIT" -> {
+                        socket.close();
+                        return;
                     }
+                    default -> out.writeObject(false);
                 }
-                continue;
             }
-
-            while ((message = input.readLine()) != null) {
-                if (message.equals("GET_BOOKS")) {
-                    // Получаем все книги из базы данных
-                    List<Book> books = databaseManager.getAllBooks();
-                    for (Book book : books) {
-                        output.println(book.getDetails()); // Отправляем клиенту детали книги
-                    }
-                }
-                else if (message.equals("register")) {
-                    String username = (String) in.readObject();
-                    String password = (String) in.readObject();
-                    boolean success = userService.register(username, password);
-                    out.writeObject(success);
-                }
-                else if (message.equals("purchaseBook")) {
-                    String username = (String) in.readObject();
-                    int bookId = (Integer) in.readObject();
-                    userService.purchaseBook(username, bookId);
-                }
-
-
-                // Можно добавить другие команды, например, покупка книги
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Клиент отключён: " + e.getMessage());
         }
+    }
+
+    private void handleLogin() throws IOException, ClassNotFoundException {
+        String username = (String) in.readObject();
+        String password = (String) in.readObject();
+        User user = db.getUserByCredentials(username, password);
+        out.writeObject(user);
+    }
+
+    private void handleRegister() throws IOException, ClassNotFoundException {
+        String username = (String) in.readObject();
+        String password = (String) in.readObject();
+        System.out.println("Регистрация пользователя: " + username + " | Пароль: " + password);
+
+        boolean success = db.createUser(username, password);
+        out.writeObject(success);
+    }
+
+    private void handleGetBooks() throws IOException {
+        List<Book> books = db.getAllBooks();
+        out.writeObject(books);
+    }
+
+    private void handleGetBooksByRegion() throws IOException, ClassNotFoundException {
+        String region = (String) in.readObject();
+        List<Book> books = db.getBooksByRegion(region);
+        out.writeObject(books);
+    }
+
+    private void handleGetPurchasedBooks() throws IOException, ClassNotFoundException {
+        String username = (String) in.readObject();
+        List<Book> books = db.getPurchasedBooksByUsername(username);
+        out.writeObject(books);
+    }
+
+    private void handlePurchaseBook() throws IOException, ClassNotFoundException {
+        String username = (String) in.readObject();
+        Book book = (Book) in.readObject();
+        boolean success = db.purchaseBook(username, book);
+        out.writeObject(success);
     }
 }

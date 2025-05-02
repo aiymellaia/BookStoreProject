@@ -1,4 +1,5 @@
-import javafx.application.Application;
+package view;
+
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
@@ -7,16 +8,18 @@ import model.Book;
 
 import java.util.List;
 
-public class BooksListWindow extends Application {
+public class BooksListWindow {
+
+    private Stage stage;
     private List<Book> books;
 
     public BooksListWindow(List<Book> books) {
+        this.stage = new Stage();
         this.books = books;
     }
 
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Книги региона");
+    public void show() {
+        stage.setTitle("Книги региона");
 
         ListView<String> listView = new ListView<>();
         for (Book book : books) {
@@ -24,13 +27,8 @@ public class BooksListWindow extends Application {
         }
 
         VBox vbox = new VBox(10, listView);
-        Scene scene = new Scene(vbox, 300, 250);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-
-    public static void main(String[] args) {
-        launch(args);
+        Scene scene = new Scene(vbox, 400, 300);
+        stage.setScene(scene);
+        stage.show();
     }
 }
