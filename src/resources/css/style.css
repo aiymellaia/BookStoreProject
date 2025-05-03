@@ -1,0 +1,54 @@
+.auth-pane {
+    -fx-background-color: #f0f4f8;
+}
+
+.title-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #333;
+    -fx-font-weight: bold;
+}
+
+.input-field {
+    -fx-pref-width: 250px;
+    -fx-pref-height: 40px;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-padding: 0 10 0 10;
+    -fx-font-size: 14px;
+}
+
+.input-field:focused {
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+}
+
+.action-button {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-font-size: 14px;
+    -fx-pref-width: 120px;
+    -fx-pref-height: 40px;
+}
+
+.action-button:hover {
+    -fx-background-color: #357ab7;
+}
+
+.secondary-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #4a90e2;
+    -fx-text-fill: #4a90e2;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-font-size: 14px;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 40px;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+}

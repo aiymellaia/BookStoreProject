@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="resources.controller.LoginController"
+            prefWidth="400" prefHeight="300" styleClass="auth-pane">
+    <VBox alignment="CENTER" spacing="20" prefWidth="300" layoutX="50" layoutY="50">
+
+        <Label text="Авторизация" styleClass="title-label"/>
+
+        <TextField fx:id="loginField" promptText="Логин" styleClass="input-field"/>
+        <PasswordField fx:id="passwordField" promptText="Пароль" styleClass="input-field"/>
+
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="loginButton" text="Войти" styleClass="action-button"/>
+            <Button fx:id="registerButton" text="Зарегистрироваться" styleClass="secondary-button"/>
+        </HBox>
+
+    </VBox>
+</AnchorPane>

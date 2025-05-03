@@ -1,12 +1,10 @@
 package view;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import model.Book;
 import model.PrintedBook;
@@ -25,62 +23,106 @@ public class AdminPanelWindow {
     public void show() {
         stage.setTitle("Админ-панель: Добавление книги");
 
-        GridPane grid = new GridPane();
-        grid.setPadding(new Insets(20));
-        grid.setVgap(10);
-        grid.setHgap(10);
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(30));
+        root.setAlignment(Pos.TOP_CENTER);
+        root.getStyleClass().add("auth-pane");
+
+        Label titleLabel = new Label("Добавить новую книгу");
+        titleLabel.getStyleClass().add("title-label");
 
         TextField titleField = new TextField();
+        titleField.setPromptText("Название книги");
+        titleField.getStyleClass().add("input-field");
+
         TextField authorField = new TextField();
+        authorField.setPromptText("Автор");
+        authorField.getStyleClass().add("input-field");
+
         TextField regionField = new TextField();
+        regionField.setPromptText("Регион");
+        regionField.getStyleClass().add("input-field");
+
         TextField priceField = new TextField();
+        priceField.setPromptText("Цена");
+        priceField.getStyleClass().add("input-field");
+
         TextField pagesField = new TextField();
+        pagesField.setPromptText("Количество страниц (для печатной книги)");
+        pagesField.getStyleClass().add("input-field");
+
         TextField linkField = new TextField();
+        linkField.setPromptText("Ссылка на eBook");
+        linkField.getStyleClass().add("input-field");
+
         TextField coverField = new TextField();
+        coverField.setPromptText("URL обложки");
+        coverField.getStyleClass().add("input-field");
 
         Button addPrintedBook = new Button("Добавить печатную книгу");
-        Button addEBook = new Button("Добавить eBook");
+        addPrintedBook.getStyleClass().add("action-button");
 
-        ListView<String> statusList = new ListView<>();
+        Button addEBook = new Button("Добавить электронную книгу");
+        addEBook.getStyleClass().add("secondary-button");
+
+        TextArea statusArea = new TextArea();
+        statusArea.setEditable(false);
+        statusArea.setPrefHeight(150);
+        statusArea.getStyleClass().add("input-field");
+        statusArea.setPromptText("Статус добавления книг будет отображаться здесь...");
+
+        HBox buttonBox = new HBox(15, addPrintedBook, addEBook);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        root.getChildren().addAll(
+                titleLabel,
+                titleField,
+                authorField,
+                regionField,
+                priceField,
+                pagesField,
+                linkField,
+                coverField,
+                buttonBox,
+                statusArea
+        );
 
         addPrintedBook.setOnAction(e -> {
-            Book book = new PrintedBook(
-                    titleField.getText(),
-                    authorField.getText(),
-                    regionField.getText(),
-                    Double.parseDouble(priceField.getText()),
-                    Integer.parseInt(pagesField.getText()),
-                    coverField.getText()
-            );
-            dbManager.insertBook(book);
-            statusList.getItems().add("✅ Печатная книга добавлена: " + book.getTitle());
+            try {
+                Book book = new PrintedBook(
+                        titleField.getText(),
+                        authorField.getText(),
+                        regionField.getText(),
+                        Double.parseDouble(priceField.getText()),
+                        Integer.parseInt(pagesField.getText()),
+                        coverField.getText()
+                );
+                dbManager.insertBook(book);
+                statusArea.appendText("✅ Печатная книга добавлена: " + book.getTitle() + "\n");
+            } catch (Exception ex) {
+                statusArea.appendText("❌ Ошибка при добавлении печатной книги.\n");
+            }
         });
 
         addEBook.setOnAction(e -> {
-            Book book = new EBook(
-                    titleField.getText(),
-                    authorField.getText(),
-                    regionField.getText(),
-                    Double.parseDouble(priceField.getText()),
-                    linkField.getText(),
-                    coverField.getText()
-            );
-            dbManager.insertBook(book);
-            statusList.getItems().add("✅ Электронная книга добавлена: " + book.getTitle());
+            try {
+                Book book = new EBook(
+                        titleField.getText(),
+                        authorField.getText(),
+                        regionField.getText(),
+                        Double.parseDouble(priceField.getText()),
+                        linkField.getText(),
+                        coverField.getText()
+                );
+                dbManager.insertBook(book);
+                statusArea.appendText("✅ Электронная книга добавлена: " + book.getTitle() + "\n");
+            } catch (Exception ex) {
+                statusArea.appendText("❌ Ошибка при добавлении электронной книги.\n");
+            }
         });
 
-        grid.addRow(0, new Label("Название:"), titleField);
-        grid.addRow(1, new Label("Автор:"), authorField);
-        grid.addRow(2, new Label("Регион:"), regionField);
-        grid.addRow(3, new Label("Цена:"), priceField);
-        grid.addRow(4, new Label("Страницы:"), pagesField);
-        grid.addRow(5, new Label("Ссылка на eBook:"), linkField);
-        grid.addRow(6, new Label("Обложка (URL):"), coverField);
-        grid.addRow(7, addPrintedBook, addEBook);
-        grid.addRow(8, statusList);
-
-
-        Scene scene = new Scene(grid, 600, 450);
+        Scene scene = new Scene(root, 500, 750);
+        scene.getStylesheets().add(getClass().getResource("\"/resources/css/style.css\"").toExternalForm());
         stage.setScene(scene);
         stage.show();
     }

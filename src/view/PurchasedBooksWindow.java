@@ -1,6 +1,8 @@
 package view;
 
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -22,7 +24,7 @@ public class PurchasedBooksWindow {
     }
 
     public void show() {
-        stage.setTitle("Мои покупки");
+        stage.setTitle("📚 Мои покупки");
 
         ListView<String> listView = new ListView<>();
         List<Book> books = clientNetwork.getPurchasedBooks(username);
@@ -30,7 +32,22 @@ public class PurchasedBooksWindow {
             listView.getItems().add(book.getDetails());
         }
 
-        VBox vbox = new VBox(10, listView);
+        // Стиль окна
+        VBox vbox = new VBox(15);
+        vbox.setPadding(new Insets(20));
+        vbox.setStyle("-fx-background-color: #f4f4f4; -fx-font-family: 'Arial';");
+
+        // Заголовок
+        Label title = new Label("Список ваших покупок:");
+        title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+
+        // Список покупок
+        listView.setStyle("-fx-background-color: #ffffff; -fx-border-color: #d3d3d3; -fx-border-width: 1px; -fx-font-size: 14px;");
+
+        // Добавление элементов на панель
+        vbox.getChildren().addAll(title, listView);
+
+        // Настройка сцены
         Scene scene = new Scene(vbox, 400, 300);
         stage.setScene(scene);
         stage.show();

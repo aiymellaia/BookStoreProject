@@ -34,10 +34,12 @@ public class AvailableBooksWindow {
         ListView<Book> booksListView = new ListView<>();
         ObservableList<Book> items = FXCollections.observableArrayList();
 
+        // Получение списка книг по региону
         List<Book> books = clientNetwork.getBooksByRegion(region);
         items.addAll(books);
         booksListView.setItems(items);
 
+        // Настройка отображения элементов списка
         booksListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Book book, boolean empty) {
@@ -46,13 +48,16 @@ public class AvailableBooksWindow {
             }
         });
 
+        // Кнопка "Купить"
         Button buyButton = new Button("🛒 Купить");
         buyButton.setDisable(true);
+        buyButton.getStyleClass().add("action-button");
 
         booksListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             buyButton.setDisable(newSel == null);
         });
 
+        // Действие при нажатии кнопки "Купить"
         buyButton.setOnAction(e -> {
             Book selectedBook = booksListView.getSelectionModel().getSelectedItem();
             if (selectedBook != null) {
@@ -63,25 +68,34 @@ public class AvailableBooksWindow {
             }
         });
 
+        // Кнопка "Назад"
         Button backButton = new Button("🔙 Назад");
+        backButton.getStyleClass().add("secondary-button");
         backButton.setOnAction(e -> {
             RegionSelectionWindow regionSelection = new RegionSelectionWindow(stage, username, clientNetwork);
             regionSelection.show();
         });
 
-        HBox buttonBox = new HBox(10, buyButton, backButton);
+        // Панель с кнопками
+        HBox buttonBox = new HBox(15, buyButton, backButton);
         buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setPadding(new javafx.geometry.Insets(20));
 
+        // Основная панель с книгами и кнопками
         BorderPane root = new BorderPane();
         root.setCenter(booksListView);
         root.setBottom(buttonBox);
+        BorderPane.setAlignment(buttonBox, Pos.CENTER);
 
+        // Настройка сцены
         Scene scene = new Scene(root, 600, 450);
+        scene.getStylesheets().add(getClass().getResource("/resources/css/available.css").toExternalForm());  // Подключение стилей
         stage.setTitle("📚 Книги региона: " + region);
         stage.setScene(scene);
         stage.show();
     }
 
+    // Метод для отображения оповещений
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
